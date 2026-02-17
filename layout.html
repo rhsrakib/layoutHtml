@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GCTL Infosys – HRM Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Sora:wght@600;700&family=Noto+Kufi+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    /* ═══════════════════════════════════════════════════════
+       VARIABLES
+    ═══════════════════════════════════════════════════════ */
+    :root {
+      --sw:  240px;
+      --scw: 58px;
+      --th:  56px;
+      --red:   #d62b2b;
+      --blue:  #1a3a6b;
+      --acc:   #e84545;
+      --sbg:   #fff;
+      --sbord: #e8ecf0;
+      --bbg:   #f3f5f8;
+      --tm:    #1c2840;
+      --tmu:   #7a8ba0;
+      --nhov:  #f0f4f9;
+      --nabg:  #eef2ff;
+      --natx:  #1a3a6b;
+      --tbg:   #fff;
+      --fbg:   #fff;
+      --fbord: #e8ecf0;
+      --sh1: 0 1px 4px rgba(0,0,0,.07);
+      --sh2: 0 8px 28px rgba(0,0,0,.13);
+      --dur-fast:    180ms;
+      --dur-med:     280ms;
+      --dur-slow:    360ms;
+      --ease-out:    cubic-bezier(.25,.46,.45,.94);
+      --ease-io:     cubic-bezier(.4,0,.2,1);
+    }
+
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+
+    /* ── Font switching ── */
+    html[dir="ltr"] body { font-family:'DM Sans',sans-serif; }
+    html[dir="rtl"] body { font-family:'Noto Kufi Arabic',sans-serif; }
+
+    body { background:var(--bbg); color:var(--tm); min-height:100vh; overflow-x:hidden; }
+
+    /* ═══════════════════════════════════════════════════════
+       TOPBAR
+    ═══════════════════════════════════════════════════════ */
+    .topbar {
+      position:fixed; top:0; left:0; right:0; height:var(--th);
+      background:var(--tbg); border-bottom:1px solid var(--sbord);
+      display:flex; align-items:center; justify-content:space-between;
+      z-index:1060; box-shadow:var(--sh1);
+      /* padding adapts to dir */
+      padding-inline-end:1rem;
+    }
+    .tb-left  { display:flex; align-items:center; }
+    .tb-brand {
+      display:flex; align-items:center; gap:.5rem;
+      width:var(--sw); padding-inline:1.1rem; flex-shrink:0;
+      text-decoration:none; overflow:hidden;
+      transition: width var(--dur-med) var(--ease-io),
+                  padding var(--dur-med) var(--ease-io);
+    }
+    .tb-brand.coll { width:var(--scw); padding-inline:0; justify-content:center; }
+    .tb-brand .bname {
+      font-family:'Sora',sans-serif; font-weight:700; font-size:1.15rem;
+      color:var(--blue); letter-spacing:-.3px; white-space:nowrap;
+      opacity:1; transform:translateX(0);
+      transition: opacity var(--dur-fast) var(--ease-out),
+                  transform var(--dur-fast) var(--ease-out);
+    }
+    /* LTR: label slides left when collapsing */
+    html[dir="ltr"] .tb-brand.coll .bname { opacity:0; transform:translateX(-8px); width:0; overflow:hidden; pointer-events:none; }
+    /* RTL: label slides right when collapsing */
+    html[dir="rtl"] .tb-brand.coll .bname { opacity:0; transform:translateX(8px);  width:0; overflow:hidden; pointer-events:none; }
+
+    .blogo {
+      width:34px; height:34px; flex-shrink:0;
+      background:linear-gradient(135deg,var(--red) 50%,var(--blue) 50%);
+      border-radius:7px; display:flex; align-items:center; justify-content:center;
+      color:#fff; font-family:'Sora',sans-serif; font-size:.63rem; font-weight:700;
+    }
+    .tb-right { display:flex; align-items:center; gap:.4rem; }
+    .tb-btn {
+      width:36px; height:36px; border-radius:8px;
+      border:1px solid var(--sbord); background:var(--sbg);
+      display:flex; align-items:center; justify-content:center;
+      color:var(--tmu); cursor:pointer; font-size:1rem; position:relative;
+      transition:background var(--dur-fast) ease, color var(--dur-fast) ease;
+    }
+    .tb-btn:hover { background:var(--nhov); color:var(--blue); }
+
+    /* RTL toggle button */
+    .rtl-btn {
+      display:flex; align-items:center; gap:.4rem;
+      padding:4px 10px; border-radius:8px;
+      border:1px solid var(--sbord); background:var(--sbg);
+      font-size:.8rem; font-weight:600; color:var(--tm);
+      cursor:pointer; white-space:nowrap;
+      transition:background var(--dur-fast) ease, color var(--dur-fast) ease;
+      user-select:none;
+    }
+    .rtl-btn:hover { background:var(--nhov); color:var(--blue); }
+    .rtl-btn .rtl-flag { font-size:1rem; line-height:1; }
+    .rtl-btn .rtl-label { font-size:.75rem; font-weight:700; letter-spacing:.04em; }
+
+    .lang {
+      padding:4px 10px; border-radius:8px; border:1px solid var(--sbord);
+      background:var(--sbg); font-size:.8rem; font-weight:600;
+      color:var(--tm); cursor:pointer;
+      transition:background var(--dur-fast) ease;
+    }
+    .lang:hover { background:var(--nhov); }
+    .ndot { position:absolute; top:5px; inset-inline-end:5px; width:7px; height:7px; background:var(--acc); border-radius:50%; border:1px solid #fff; }
+    .avatar {
+      width:36px; height:36px; border-radius:50%;
+      background:linear-gradient(135deg,#4f6ef7,#a855f7);
+      display:flex; align-items:center; justify-content:center;
+      color:#fff; font-weight:700; font-size:.85rem; cursor:pointer;
+      border:2px solid var(--sbord);
+    }
+    #mbToggle { border:none; background:transparent; color:var(--tm); font-size:1.2rem; padding:4px 10px; cursor:pointer; display:none; }
+
+    /* ═══════════════════════════════════════════════════════
+       LAYOUT
+    ═══════════════════════════════════════════════════════ */
+    .layout { display:flex; padding-top:var(--th); min-height:100vh; }
+
+    /* ═══════════════════════════════════════════════════════
+       SIDEBAR
+       Uses inset-inline-start so it flips automatically in RTL
+    ═══════════════════════════════════════════════════════ */
+    .sidebar {
+      width:var(--sw); flex-shrink:0;
+      background:var(--sbg);
+      position:fixed; top:var(--th); bottom:0;
+      inset-inline-start:0;                 /* left in LTR, right in RTL */
+      display:flex; flex-direction:column;
+      z-index:1050; overflow:visible;
+      border-inline-end:1px solid var(--sbord); /* right border in LTR, left in RTL */
+      transition: width var(--dur-med) var(--ease-io),
+                  transform var(--dur-slow) var(--ease-io),
+                  box-shadow var(--dur-med) ease;
+    }
+    .sb-scroll {
+      flex:1; overflow-y:auto; overflow-x:visible;
+      scrollbar-width:thin; scrollbar-color:#dde3ec transparent;
+    }
+    .sb-scroll::-webkit-scrollbar { width:4px; }
+    .sb-scroll::-webkit-scrollbar-thumb { background:#dde3ec; border-radius:4px; }
+    .sidebar.coll { width:var(--scw); }
+
+    /* ═══════════════════════════════════════════════════════
+       NAV ROWS
+    ═══════════════════════════════════════════════════════ */
+    .snav { padding:.5rem 0; }
+    .niw  { position:relative; }
+
+    .nr {
+      display:flex; align-items:center; gap:.55rem;
+      width:100%; padding:.5rem .85rem;
+      background:transparent; border:none;
+      text-align:start;                     /* respects dir */
+      cursor:pointer; color:var(--tm); font-size:.855rem; font-weight:500;
+      white-space:nowrap; text-decoration:none;
+      transition: background var(--dur-fast) ease,
+                  color var(--dur-fast) ease,
+                  padding var(--dur-med) var(--ease-io),
+                  gap var(--dur-med) var(--ease-io);
+    }
+    .nr:hover { background:var(--nhov); color:var(--blue); }
+    .nr.act   { background:var(--nabg); color:var(--natx); font-weight:600; }
+    .nr .ni   { font-size:1rem; width:20px; text-align:center; flex-shrink:0; color:var(--tmu); transition:color var(--dur-fast) ease; }
+    .nr:hover .ni, .nr.act .ni { color:var(--blue); }
+    .nr .lbl  { flex:1; opacity:1; transform:translateX(0); transition:opacity var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out); }
+    .nr .chev { font-size:.68rem; color:var(--tmu); flex-shrink:0; transition:transform var(--dur-med) var(--ease-io), opacity var(--dur-fast) ease; }
+
+    /* Chevron rotation: points right (LTR) or left (RTL) then rotates down when open */
+    html[dir="ltr"] .nr.open > .chev { transform:rotate(90deg); }
+    html[dir="rtl"] .nr.open > .chev { transform:rotate(-90deg); }
+
+    /* RTL: flip chevron icon direction when closed */
+    html[dir="rtl"] .nr .chev { transform:rotate(180deg); }
+    html[dir="rtl"] .nr.open > .chev { transform:rotate(90deg); }
+
+    .nsub { padding-inline-start:1.6rem; }
+    .nsub .nr  { font-size:.82rem; color:var(--tmu); }
+    .nsub .nr .ni { font-size:.9rem; width:18px; }
+    .ndeep { padding-inline-start:1.5rem; }
+    .ndeep .nr { font-size:.795rem; color:var(--tmu); padding:.38rem .85rem; }
+    .ndeep .nr .ni { font-size:.85rem; width:16px; }
+
+    .ncoll { overflow:hidden; height:0; transition:height var(--dur-med) var(--ease-io); }
+    .ndiv  { height:1px; background:var(--sbord); margin:.3rem .85rem; }
+
+    /* ═══════════════════════════════════════════════════════
+       COLLAPSED SIDEBAR – ICON STRIP
+    ═══════════════════════════════════════════════════════ */
+    .sidebar.coll .nr  { justify-content:center; padding:.58rem 0; gap:0; }
+    /* Label slides in the correct outward direction */
+    html[dir="ltr"] .sidebar.coll .lbl { opacity:0; transform:translateX(-6px); width:0; overflow:hidden; pointer-events:none; }
+    html[dir="rtl"] .sidebar.coll .lbl { opacity:0; transform:translateX(6px);  width:0; overflow:hidden; pointer-events:none; }
+    .sidebar.coll .chev { opacity:0; width:0; overflow:hidden; }
+    .sidebar.coll .nsub,
+    .sidebar.coll .ncoll,
+    .sidebar.coll .ndiv { display:none !important; }
+
+    /* ═══════════════════════════════════════════════════════
+       FLYOUT PANEL
+       Appears on the correct side depending on dir
+    ═══════════════════════════════════════════════════════ */
+    .flyout {
+      display:none;
+      position:fixed;
+      background:var(--fbg);
+      border:1px solid var(--fbord);
+      border-radius:10px;
+      box-shadow:var(--sh2);
+      min-width:222px; max-width:264px;
+      z-index:2000;
+      padding:.35rem 0;
+      pointer-events:none;
+      opacity:0;
+      transition: opacity var(--dur-fast) var(--ease-out),
+                  transform var(--dur-fast) var(--ease-out);
+      max-height:calc(100vh - 80px);
+      overflow-y:auto; overflow-x:hidden;
+      scrollbar-width:thin; scrollbar-color:#dde3ec transparent;
+    }
+    .flyout::-webkit-scrollbar { width:3px; }
+    .flyout::-webkit-scrollbar-thumb { background:#dde3ec; border-radius:3px; }
+
+    /* LTR: flyout slides in from left */
+    html[dir="ltr"] .flyout {
+      left:var(--scw);
+      transform:translateX(-10px);
+    }
+    html[dir="ltr"] .flyout.vis {
+      opacity:1; transform:translateX(5px); pointer-events:auto;
+    }
+    /* RTL: flyout slides in from right */
+    html[dir="rtl"] .flyout {
+      right:var(--scw);
+      transform:translateX(10px);
+    }
+    html[dir="rtl"] .flyout.vis {
+      opacity:1; transform:translateX(-5px); pointer-events:auto;
+    }
+
+    /* Arrow – points toward sidebar */
+    .flyout::before {
+      content:''; position:absolute; top:16px;
+      width:10px; height:10px; background:var(--fbg);
+      border-color:var(--fbord); border-style:solid;
+      pointer-events:none;
+    }
+    html[dir="ltr"] .flyout::before {
+      left:-6px;
+      border-width:0 0 1px 1px;
+      transform:rotate(45deg);
+    }
+    html[dir="rtl"] .flyout::before {
+      right:-6px;
+      border-width:1px 1px 0 0;
+      transform:rotate(45deg);
+    }
+
+    /* Flyout header */
+    .ft {
+      padding:.42rem .9rem .28rem; font-size:.7rem; font-weight:700;
+      letter-spacing:.07em; text-transform:uppercase; color:var(--tmu);
+      border-bottom:1px solid var(--fbord); margin-bottom:.25rem;
+      text-align:start;
+    }
+    /* Flyout row */
+    .fr {
+      display:flex; align-items:center; gap:.5rem;
+      width:100%; padding:.42rem .9rem;
+      font-size:.835rem; font-weight:500; color:var(--tm);
+      cursor:pointer; text-decoration:none;
+      background:transparent; border:none; text-align:start; white-space:nowrap;
+      transition:background var(--dur-fast) ease, color var(--dur-fast) ease;
+    }
+    .fr:hover { background:var(--nhov); color:var(--blue); }
+    .fr.act   { background:var(--nabg); color:var(--natx); font-weight:600; }
+    .fr .fi   { font-size:.9rem; width:18px; text-align:center; color:var(--tmu); flex-shrink:0; transition:color var(--dur-fast) ease; }
+    .fr:hover .fi, .fr.act .fi { color:var(--blue); }
+    .fr .flbl { flex:1; }
+    .fr .fchev { font-size:.65rem; color:var(--tmu); flex-shrink:0; transition:transform var(--dur-med) var(--ease-io); }
+    html[dir="ltr"] .fr.open > .fchev { transform:rotate(90deg); }
+    html[dir="rtl"] .fr .fchev        { transform:rotate(180deg); }
+    html[dir="rtl"] .fr.open > .fchev { transform:rotate(90deg); }
+
+    .fcoll { overflow:hidden; height:0; transition:height var(--dur-med) var(--ease-io); }
+
+    .fc {
+      display:flex; align-items:center; gap:.45rem;
+      padding:.38rem .9rem .38rem 2rem;
+      font-size:.8rem; font-weight:400; color:var(--tmu);
+      cursor:pointer; text-decoration:none; white-space:nowrap;
+      width:100%; background:transparent; border:none; text-align:start;
+      transition:background var(--dur-fast) ease, color var(--dur-fast) ease;
+    }
+    /* RTL indent flips */
+    html[dir="rtl"] .fc { padding:.38rem 2rem .38rem .9rem; }
+    .fc:hover { background:var(--nhov); color:var(--blue); }
+    .fc.act   { color:var(--natx); font-weight:500; }
+    .fc .fi   { font-size:.82rem; width:16px; text-align:center; flex-shrink:0; color:var(--tmu); transition:color var(--dur-fast) ease; }
+    .fc:hover .fi, .fc.act .fi { color:var(--blue); }
+
+    .fsimple { padding:.5rem .9rem; font-size:.845rem; font-weight:600; color:var(--tm); display:flex; align-items:center; gap:.5rem; text-align:start; }
+    .fsimple .fi { font-size:.9rem; color:var(--tmu); }
+
+    /* ═══════════════════════════════════════════════════════
+       SIDEBAR FOOTER
+    ═══════════════════════════════════════════════════════ */
+    .sbfoot { border-top:1px solid var(--sbord); padding:.55rem .85rem; display:flex; overflow:hidden; }
+    .sidebar.coll .sbfoot { padding:.55rem 0; justify-content:center; }
+    .cbtn {
+      display:flex; align-items:center; gap:.5rem;
+      background:transparent; border:none; color:var(--tmu);
+      font-size:.82rem; cursor:pointer; padding:.3rem 0; white-space:nowrap;
+      transition:color var(--dur-fast) ease;
+    }
+    .cbtn:hover { color:var(--blue); }
+    .cbtn .cico { transition:transform var(--dur-med) var(--ease-io); }
+    .sidebar.coll .cbtn .cblbl { opacity:0; width:0; overflow:hidden; transform:translateX(-6px); transition:opacity var(--dur-fast) ease, transform var(--dur-fast) ease; pointer-events:none; }
+    html[dir="rtl"] .sidebar.coll .cbtn .cblbl { transform:translateX(6px); }
+
+    /* ═══════════════════════════════════════════════════════
+       MAIN CONTENT
+    ═══════════════════════════════════════════════════════ */
+    .main {
+      flex:1;
+      margin-inline-start:var(--sw);        /* adapts to dir */
+      min-height:calc(100vh - var(--th));
+      display:flex; flex-direction:column;
+      transition:margin-inline-start var(--dur-med) var(--ease-io);
+    }
+    .main.coll { margin-inline-start:var(--scw); }
+    .cbody { flex:1; display:flex; align-items:center; justify-content:center; padding:3rem 2rem; }
+    .wcard { text-align:center; max-width:660px; animation:fadeUp .55s var(--ease-out) both; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
+    .wcard h1 { font-family:'Sora',sans-serif; font-size:clamp(1.6rem,4vw,2.2rem); font-weight:700; color:var(--tm); margin-bottom:.75rem; }
+    .wcard p  { color:var(--tmu); font-size:.95rem; }
+    .sgrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(145px,1fr)); gap:1rem; margin-top:2.5rem; width:100%; max-width:660px; }
+    .sc { background:#fff; border:1px solid var(--sbord); border-radius:12px; padding:1.1rem 1rem; box-shadow:var(--sh1); transition:box-shadow var(--dur-fast) ease, transform var(--dur-fast) ease; }
+    .sc:hover { box-shadow:var(--sh2); transform:translateY(-2px); }
+    .sico { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; margin-bottom:.7rem; }
+    .snum { font-family:'Sora',sans-serif; font-size:1.5rem; font-weight:700; color:var(--tm); line-height:1; margin-bottom:.25rem; }
+    .slbl { font-size:.78rem; color:var(--tmu); font-weight:500; }
+    .cfoot { border-top:1px solid var(--sbord); padding:.88rem 1.5rem; font-size:.78rem; color:var(--tmu); background:var(--sbg); display:flex; align-items:center; justify-content:center; gap:.35rem; flex-wrap:wrap; }
+    .cfoot a { color:var(--blue); text-decoration:none; font-weight:600; }
+    .cfoot a:hover { text-decoration:underline; }
+
+    /* ═══════════════════════════════════════════════════════
+       OVERLAY
+    ═══════════════════════════════════════════════════════ */
+    .ov { display:none; position:fixed; inset:0; background:rgba(0,0,0,.38); z-index:1040; opacity:0; transition:opacity var(--dur-slow) ease; }
+    .ov.vis { opacity:1; }
+
+    /* ═══════════════════════════════════════════════════════
+       RTL DIRECTION BADGE (decorative pill on topbar)
+    ═══════════════════════════════════════════════════════ */
+    .dir-badge {
+      display:inline-flex; align-items:center; gap:.3rem;
+      padding:3px 8px; border-radius:6px; font-size:.72rem; font-weight:700;
+      letter-spacing:.06em; text-transform:uppercase;
+      background:var(--nabg); color:var(--natx);
+      border:1px solid #c7d7ff;
+      transition:background var(--dur-fast) ease;
+      pointer-events:none;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════════════════════ */
+    @media(max-width:1199.98px){ :root{ --sw:220px; } }
+
+    @media(max-width:991.98px){
+      #mbToggle { display:flex; }
+
+      .tb-brand,
+      .tb-brand.coll {
+        width:auto !important; padding-inline:1rem !important;
+        justify-content:flex-start !important; transition:none !important;
+      }
+      .tb-brand .bname,
+      .tb-brand.coll .bname {
+        display:block !important; opacity:1 !important;
+        transform:none !important; width:auto !important; pointer-events:auto !important;
+      }
+
+      /* Sidebar: slide-in drawer */
+      .sidebar, .sidebar.coll {
+        width:260px !important; box-shadow:none;
+      }
+      /* LTR: slides from left */
+      html[dir="ltr"] .sidebar,
+      html[dir="ltr"] .sidebar.coll { transform:translateX(-100%); }
+      html[dir="ltr"] .sidebar.mopen,
+      html[dir="ltr"] .sidebar.coll.mopen { transform:translateX(0) !important; box-shadow:var(--sh2) !important; }
+      /* RTL: slides from right */
+      html[dir="rtl"] .sidebar,
+      html[dir="rtl"] .sidebar.coll { transform:translateX(100%); }
+      html[dir="rtl"] .sidebar.mopen,
+      html[dir="rtl"] .sidebar.coll.mopen { transform:translateX(0) !important; box-shadow:var(--sh2) !important; }
+
+      /* Undo collapsed icon-strip */
+      .sidebar.coll .nr { justify-content:flex-start !important; padding:.5rem .85rem !important; gap:.55rem !important; }
+      html[dir="ltr"] .sidebar.coll .lbl,
+      html[dir="rtl"] .sidebar.coll .lbl { opacity:1 !important; transform:none !important; width:auto !important; overflow:visible !important; pointer-events:auto !important; }
+      .sidebar.coll .chev { opacity:1 !important; width:auto !important; overflow:visible !important; }
+      .sidebar.coll .nsub, .sidebar.coll .ncoll, .sidebar.coll .ndiv { display:block !important; }
+
+      /* Flyouts off on mobile */
+      .sidebar .flyout, .sidebar.coll .flyout { display:none !important; pointer-events:none !important; }
+
+      .sidebar.coll .cbtn .cblbl { opacity:1 !important; width:auto !important; overflow:visible !important; transform:none !important; pointer-events:auto !important; }
+      .sidebar.coll .sbfoot { padding:.55rem .85rem !important; justify-content:flex-start !important; }
+      .main, .main.coll { margin-inline-start:0 !important; transition:none !important; }
+      .ov { display:block; }
+
+      /* Hide dir badge on small screens */
+      .dir-badge { display:none; }
+    }
+
+    @media(max-width:767.98px){
+      .wcard h1 { font-size:1.5rem; }
+      .cbody { padding:2rem 1rem; align-items:flex-start; }
+      .sgrid { grid-template-columns:repeat(2,1fr); }
+    }
+    @media(max-width:479.98px){
+      .lang { display:none; }
+      .rtl-btn .rtl-label { display:none; }
+      .sgrid { grid-template-columns:1fr 1fr; gap:.75rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════ TOPBAR ══════════════════ -->
+<header class="topbar">
+  <div class="tb-left">
+    <button id="mbToggle" aria-label="Toggle sidebar"><i class="bi bi-list"></i></button>
+    <a class="tb-brand" id="tbbrand" href="#">
+      <div class="blogo">GCTL</div>
+      <span class="bname">HRM</span>
+    </a>
+  </div>
+  <div class="tb-right">
+    <!-- LTR / RTL toggle -->
+    <button class="rtl-btn" id="rtlBtn" title="Toggle text direction">
+      <span class="rtl-flag" id="rtlFlag">🌐</span>
+      <span class="rtl-label" id="rtlLabel">RTL</span>
+    </button>
+
+    <div class="lang" id="langLabel">en</div>
+    <button class="tb-btn" id="themeBtn" title="Toggle theme"><i class="bi bi-sun-fill text-warning"></i></button>
+    <button class="tb-btn" title="Notifications"><i class="bi bi-bell"></i><span class="ndot"></span></button>
+    <div class="avatar" title="Profile"><i class="bi bi-person-fill"></i></div>
+  </div>
+</header>
+
+<div class="ov" id="ov"></div>
+
+<div class="layout">
+
+  <!-- ══════════════════ SIDEBAR ══════════════════ -->
+  <aside class="sidebar" id="sb">
+    <div class="sb-scroll">
+      <nav class="snav">
+
+        <!-- HOME -->
+        <div class="niw">
+          <a class="nr act" href="#"><i class="bi bi-house ni"></i><span class="lbl">Home</span></a>
+          <div class="flyout"><div class="fsimple"><i class="bi bi-house fi"></i>Home</div></div>
+        </div>
+
+        <!-- CRM -->
+        <div class="niw">
+          <a class="nr" href="#"><i class="bi bi-diagram-3 ni"></i><span class="lbl">CRM</span></a>
+          <div class="flyout"><div class="fsimple"><i class="bi bi-diagram-3 fi"></i>CRM</div></div>
+        </div>
+
+        <div class="ndiv"></div>
+
+        <!-- EMPLOYEE MANAGEMENT -->
+        <div class="niw">
+          <button class="nr open" data-t="empM">
+            <i class="bi bi-people ni"></i><span class="lbl">Employee Management</span>
+            <i class="bi bi-chevron-right chev"></i>
+          </button>
+          <div class="ncoll" id="empM">
+            <div class="nsub">
+
+              <div class="niw">
+                <button class="nr open" data-t="sprt">
+                  <i class="bi bi-person-vcard ni"></i><span class="lbl">Staff Portal</span>
+                  <i class="bi bi-chevron-right chev"></i>
+                </button>
+                <div class="ncoll" id="sprt">
+                  <div class="ndeep">
+                    <a class="nr" href="#"><i class="bi bi-list-ul ni"></i><span class="lbl">Employee List</span></a>
+                    <a class="nr" href="#"><i class="bi bi-person-plus ni"></i><span class="lbl">Register Employee</span></a>
+                  </div>
+                </div>
+              </div>
+
+              <div class="niw">
+                <button class="nr" data-t="trns">
+                  <i class="bi bi-arrow-left-right ni"></i><span class="lbl">Transfer Management</span>
+                  <i class="bi bi-chevron-right chev"></i>
+                </button>
+                <div class="ncoll" id="trns">
+                  <div class="ndeep">
+                    <a class="nr" href="#"><i class="bi bi-file-earmark-text ni"></i><span class="lbl">Transfer Requests</span></a>
+                    <a class="nr" href="#"><i class="bi bi-check2-circle ni"></i><span class="lbl">Approve Transfers</span></a>
+                  </div>
+                </div>
+              </div>
+
+              <div class="niw">
+                <button class="nr" data-t="incr">
+                  <i class="bi bi-graph-up ni"></i><span class="lbl">Employee Increment</span>
+                  <i class="bi bi-chevron-right chev"></i>
+                </button>
+                <div class="ncoll" id="incr">
+                  <div class="ndeep">
+                    <a class="nr" href="#"><i class="bi bi-plus-circle ni"></i><span class="lbl">Add Increment</span></a>
+                  </div>
+                </div>
+              </div>
+
+              <div class="niw">
+                <button class="nr" data-t="prom">
+                  <i class="bi bi-award ni"></i><span class="lbl">Promotion Management</span>
+                  <i class="bi bi-chevron-right chev"></i>
+                </button>
+                <div class="ncoll" id="prom">
+                  <div class="ndeep">
+                    <a class="nr" href="#"><i class="bi bi-trophy ni"></i><span class="lbl">Promotions List</span></a>
+                  </div>
+                </div>
+              </div>
+
+              <div class="niw">
+                <button class="nr" data-t="rsgn">
+                  <i class="bi bi-box-arrow-right ni"></i><span class="lbl">Employee Resign</span>
+                  <i class="bi bi-chevron-right chev"></i>
+                </button>
+                <div class="ncoll" id="rsgn">
+                  <div class="ndeep">
+                    <a class="nr" href="#"><i class="bi bi-file-earmark-minus ni"></i><span class="lbl">Resign Requests</span></a>
+                  </div>
+                </div>
+              </div>
+
+              <div class="niw">
+                <button class="nr" data-t="term">
+                  <i class="bi bi-x-octagon ni"></i><span class="lbl">Employee Termination</span>
+                  <i class="bi bi-chevron-right chev"></i>
+                </button>
+                <div class="ncoll" id="term">
+                  <div class="ndeep">
+                    <a class="nr" href="#"><i class="bi bi-slash-circle ni"></i><span class="lbl">Termination Records</span></a>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Flyout: Employee Management -->
+          <div class="flyout">
+            <div class="ft">Employee Management</div>
+            <button class="fr open" data-ft="fsprt"><i class="bi bi-person-vcard fi"></i><span class="flbl">Staff Portal</span><i class="bi bi-chevron-right fchev"></i></button>
+            <div class="fcoll" id="fsprt">
+              <a class="fc" href="#"><i class="bi bi-list-ul fi"></i>Employee List</a>
+              <a class="fc" href="#"><i class="bi bi-person-plus fi"></i>Register Employee</a>
+            </div>
+            <button class="fr" data-ft="ftrns"><i class="bi bi-arrow-left-right fi"></i><span class="flbl">Transfer Management</span><i class="bi bi-chevron-right fchev"></i></button>
+            <div class="fcoll" id="ftrns">
+              <a class="fc" href="#"><i class="bi bi-file-earmark-text fi"></i>Transfer Requests</a>
+              <a class="fc" href="#"><i class="bi bi-check2-circle fi"></i>Approve Transfers</a>
+            </div>
+            <button class="fr" data-ft="fincr"><i class="bi bi-graph-up fi"></i><span class="flbl">Employee Increment Man</span><i class="bi bi-chevron-right fchev"></i></button>
+            <div class="fcoll" id="fincr">
+              <a class="fc" href="#"><i class="bi bi-plus-circle fi"></i>Add Increment</a>
+            </div>
+            <button class="fr" data-ft="fprom"><i class="bi bi-award fi"></i><span class="flbl">Promotion Management</span><i class="bi bi-chevron-right fchev"></i></button>
+            <div class="fcoll" id="fprom">
+              <a class="fc" href="#"><i class="bi bi-trophy fi"></i>Promotions List</a>
+            </div>
+            <button class="fr" data-ft="frsgn"><i class="bi bi-box-arrow-right fi"></i><span class="flbl">Employee Resign</span><i class="bi bi-chevron-right fchev"></i></button>
+            <div class="fcoll" id="frsgn">
+              <a class="fc" href="#"><i class="bi bi-file-earmark-minus fi"></i>Resign Requests</a>
+            </div>
+            <button class="fr" data-ft="fterm"><i class="bi bi-x-octagon fi"></i><span class="flbl">Employee Termination</span><i class="bi bi-chevron-right fchev"></i></button>
+            <div class="fcoll" id="fterm">
+              <a class="fc" href="#"><i class="bi bi-slash-circle fi"></i>Termination Records</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- CUSTOMERS -->
+        <div class="niw">
+          <a class="nr" href="#"><i class="bi bi-person-check ni"></i><span class="lbl">Customers</span></a>
+          <div class="flyout"><div class="fsimple"><i class="bi bi-person-check fi"></i>Customers</div></div>
+        </div>
+
+        <div class="ndiv"></div>
+
+        <!-- ATTENDANCE -->
+        <div class="niw">
+          <button class="nr" data-t="att"><i class="bi bi-calendar-check ni"></i><span class="lbl">Attendance Management</span><i class="bi bi-chevron-right chev"></i></button>
+          <div class="ncoll" id="att">
+            <div class="nsub">
+              <a class="nr" href="#"><i class="bi bi-clock ni"></i><span class="lbl">Daily Attendance</span></a>
+              <a class="nr" href="#"><i class="bi bi-calendar3 ni"></i><span class="lbl">Monthly Report</span></a>
+            </div>
+          </div>
+          <div class="flyout">
+            <div class="ft">Attendance Management</div>
+            <a class="fr" href="#"><i class="bi bi-clock fi"></i><span class="flbl">Daily Attendance</span></a>
+            <a class="fr" href="#"><i class="bi bi-calendar3 fi"></i><span class="flbl">Monthly Report</span></a>
+          </div>
+        </div>
+
+        <!-- PROJECT MANAGEMENT -->
+        <div class="niw">
+          <button class="nr" data-t="prj"><i class="bi bi-briefcase ni"></i><span class="lbl">Project Management</span><i class="bi bi-chevron-right chev"></i></button>
+          <div class="ncoll" id="prj">
+            <div class="nsub">
+              <a class="nr" href="#"><i class="bi bi-folder ni"></i><span class="lbl">Projects</span></a>
+              <a class="nr" href="#"><i class="bi bi-kanban ni"></i><span class="lbl">Tasks</span></a>
+            </div>
+          </div>
+          <div class="flyout">
+            <div class="ft">Project Management</div>
+            <a class="fr" href="#"><i class="bi bi-folder fi"></i><span class="flbl">Projects</span></a>
+            <a class="fr" href="#"><i class="bi bi-kanban fi"></i><span class="flbl">Tasks</span></a>
+          </div>
+        </div>
+
+        <!-- PAYROLL -->
+        <div class="niw">
+          <button class="nr" data-t="pay"><i class="bi bi-currency-dollar ni"></i><span class="lbl">Payroll Management</span><i class="bi bi-chevron-right chev"></i></button>
+          <div class="ncoll" id="pay">
+            <div class="nsub">
+              <a class="nr" href="#"><i class="bi bi-receipt ni"></i><span class="lbl">Salary Slips</span></a>
+              <a class="nr" href="#"><i class="bi bi-wallet2 ni"></i><span class="lbl">Payroll Run</span></a>
+            </div>
+          </div>
+          <div class="flyout">
+            <div class="ft">Payroll Management</div>
+            <a class="fr" href="#"><i class="bi bi-receipt fi"></i><span class="flbl">Salary Slips</span></a>
+            <a class="fr" href="#"><i class="bi bi-wallet2 fi"></i><span class="flbl">Payroll Run</span></a>
+          </div>
+        </div>
+
+        <div class="ndiv"></div>
+
+        <!-- MASTER SETUP -->
+        <div class="niw">
+          <button class="nr" data-t="mst"><i class="bi bi-layers ni"></i><span class="lbl">Master Setup</span><i class="bi bi-chevron-right chev"></i></button>
+          <div class="ncoll" id="mst">
+            <div class="nsub">
+              <a class="nr" href="#"><i class="bi bi-tag ni"></i><span class="lbl">Master Setup Category</span></a>
+            </div>
+          </div>
+          <div class="flyout">
+            <div class="ft">Master Setup</div>
+            <a class="fr" href="#"><i class="bi bi-tag fi"></i><span class="flbl">Master Setup Category</span></a>
+          </div>
+        </div>
+
+        <!-- FINANCE -->
+        <div class="niw">
+          <button class="nr" data-t="fin"><i class="bi bi-bank ni"></i><span class="lbl">Finance</span><i class="bi bi-chevron-right chev"></i></button>
+          <div class="ncoll" id="fin">
+            <div class="nsub">
+              <a class="nr" href="#"><i class="bi bi-cash-stack ni"></i><span class="lbl">Accounts</span></a>
+              <a class="nr" href="#"><i class="bi bi-bar-chart ni"></i><span class="lbl">Reports</span></a>
+            </div>
+          </div>
+          <div class="flyout">
+            <div class="ft">Finance</div>
+            <a class="fr" href="#"><i class="bi bi-cash-stack fi"></i><span class="flbl">Accounts</span></a>
+            <a class="fr" href="#"><i class="bi bi-bar-chart fi"></i><span class="flbl">Reports</span></a>
+          </div>
+        </div>
+
+        <!-- SETTINGS -->
+        <div class="niw">
+          <button class="nr" data-t="set"><i class="bi bi-gear ni"></i><span class="lbl">Settings</span><i class="bi bi-chevron-right chev"></i></button>
+          <div class="ncoll" id="set">
+            <div class="nsub">
+              <a class="nr" href="#"><i class="bi bi-sliders ni"></i><span class="lbl">General</span></a>
+              <a class="nr" href="#"><i class="bi bi-lock ni"></i><span class="lbl">Security</span></a>
+            </div>
+          </div>
+          <div class="flyout">
+            <div class="ft">Settings</div>
+            <a class="fr" href="#"><i class="bi bi-sliders fi"></i><span class="flbl">General</span></a>
+            <a class="fr" href="#"><i class="bi bi-lock fi"></i><span class="flbl">Security</span></a>
+          </div>
+        </div>
+
+        <!-- ADMIN -->
+        <div class="niw">
+          <button class="nr" data-t="adm"><i class="bi bi-shield-check ni"></i><span class="lbl">Admin</span><i class="bi bi-chevron-right chev"></i></button>
+          <div class="ncoll" id="adm">
+            <div class="nsub">
+              <a class="nr" href="#"><i class="bi bi-person-gear ni"></i><span class="lbl">User Management</span></a>
+              <a class="nr" href="#"><i class="bi bi-shield-lock ni"></i><span class="lbl">Permissions</span></a>
+            </div>
+          </div>
+          <div class="flyout">
+            <div class="ft">Admin</div>
+            <a class="fr" href="#"><i class="bi bi-person-gear fi"></i><span class="flbl">User Management</span></a>
+            <a class="fr" href="#"><i class="bi bi-shield-lock fi"></i><span class="flbl">Permissions</span></a>
+          </div>
+        </div>
+
+      </nav>
+    </div>
+
+    <div class="sbfoot d-none d-lg-flex">
+      <button class="cbtn" id="collBtn">
+        <i class="bi bi-arrow-bar-left cico" id="collIco"></i>
+        <span class="cblbl">Collapsed View</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ══════════════════ MAIN ══════════════════ -->
+  <main class="main" id="main">
+    <div class="cbody">
+      <div style="display:flex;flex-direction:column;align-items:center;width:100%">
+        <div class="wcard">
+          <h1>Welcome to GCTL Infosys Dashboard</h1>
+          <p>Empowering businesses with smart, scalable, and seamless ERP solutions. 🚀</p>
+        </div>
+        <div class="sgrid">
+          <div class="sc"><div class="sico" style="background:#eef2ff"><i class="bi bi-people-fill" style="color:#4f6ef7"></i></div><div class="snum">248</div><div class="slbl">Total Employees</div></div>
+          <div class="sc"><div class="sico" style="background:#fff0f0"><i class="bi bi-calendar-check-fill" style="color:#e84545"></i></div><div class="snum">94%</div><div class="slbl">Attendance Rate</div></div>
+          <div class="sc"><div class="sico" style="background:#f0fdf4"><i class="bi bi-briefcase-fill" style="color:#22c55e"></i></div><div class="snum">18</div><div class="slbl">Active Projects</div></div>
+          <div class="sc"><div class="sico" style="background:#fffbeb"><i class="bi bi-currency-dollar" style="color:#f59e0b"></i></div><div class="snum">$1.2M</div><div class="slbl">Monthly Payroll</div></div>
+        </div>
+      </div>
+    </div>
+    <footer class="cfoot">
+      <span>Thank you for creating with GCTL Infosys</span><span>|</span>
+      <span>2026©</span><a href="#">GCTL Infosys</a><span>v1.19.0</span>
+    </footer>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════
+   SMOOTH HEIGHT ANIMATION HELPERS
+═══════════════════════════════════════════════════════ */
+function slideDown(el) {
+  if (!el) return;
+  el.style.height = el.scrollHeight + 'px';
+  el.addEventListener('transitionend', function h() {
+    el.style.height = 'auto';
+    el.removeEventListener('transitionend', h);
+  }, { once: true });
+}
+function slideUp(el) {
+  if (!el) return;
+  el.style.height = el.scrollHeight + 'px';
+  requestAnimationFrame(() => requestAnimationFrame(() => { el.style.height = '0'; }));
+}
+function togglePane(pane, btn, open) {
+  open ? slideDown(pane) : slideUp(pane);
+  btn?.classList.toggle('open', open);
+}
+function closeSiblings(skip, parent) {
+  parent.querySelectorAll(':scope > .niw > .ncoll').forEach(s => {
+    if (s !== skip && s.style.height !== '0px' && s.style.height !== '') {
+      slideUp(s);
+      s.previousElementSibling?.classList.remove('open');
+    }
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   BOOT – initialise heights for pre-opened panes
+═══════════════════════════════════════════════════════ */
+document.querySelectorAll('.ncoll, .fcoll').forEach(pane => {
+  const btn = pane.previousElementSibling;
+  pane.style.height = (btn && btn.classList.contains('open')) ? 'auto' : '0';
+});
+
+/* ═══════════════════════════════════════════════════════
+   DOM REFS
+═══════════════════════════════════════════════════════ */
+const SB       = document.getElementById('sb');
+const MAIN     = document.getElementById('main');
+const BRAND    = document.getElementById('tbbrand');
+const COLLBTN  = document.getElementById('collBtn');
+const COLLICO  = document.getElementById('collIco');
+const MBTGL    = document.getElementById('mbToggle');
+const OV       = document.getElementById('ov');
+const THMBTN   = document.getElementById('themeBtn');
+const RTLBTN   = document.getElementById('rtlBtn');
+const RTLFLG   = document.getElementById('rtlFlag');
+const RTLLBL   = document.getElementById('rtlLabel');
+const LANGLBL  = document.getElementById('langLabel');
+const HTML     = document.documentElement;
+
+let collapsed = false;
+let dark      = false;
+let isRTL     = false;
+const BP      = 992;
+const isMobile = () => window.innerWidth < BP;
+
+/* ═══════════════════════════════════════════════════════
+   1. SIDEBAR ACCORDION
+═══════════════════════════════════════════════════════ */
+document.querySelectorAll('.nr[data-t]').forEach(btn => {
+  btn.addEventListener('click', function () {
+    if (collapsed && !isMobile()) return;
+    const pane = document.getElementById(this.dataset.t);
+    if (!pane) return;
+    const opening = !this.classList.contains('open');
+    closeSiblings(pane, this.parentElement.parentElement);
+    togglePane(pane, this, opening);
+  });
+});
+
+/* ═══════════════════════════════════════════════════════
+   2. FLYOUT ACCORDION
+═══════════════════════════════════════════════════════ */
+document.querySelectorAll('.fr[data-ft]').forEach(btn => {
+  btn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    const pane = document.getElementById(this.dataset.ft);
+    if (!pane) return;
+    const opening = !this.classList.contains('open');
+    const flyout  = this.closest('.flyout');
+    flyout.querySelectorAll('.fcoll').forEach(s => {
+      if (s !== pane) { slideUp(s); s.previousElementSibling?.classList.remove('open'); }
+    });
+    togglePane(pane, this, opening);
+    const wrap = flyout.closest('.niw');
+    if (wrap) repositionFlyout(flyout, wrap);
+  });
+});
+
+/* ═══════════════════════════════════════════════════════
+   3. DESKTOP SIDEBAR COLLAPSE
+═══════════════════════════════════════════════════════ */
+if (COLLBTN) {
+  COLLBTN.addEventListener('click', () => {
+    collapsed = !collapsed;
+    SB.classList.toggle('coll', collapsed);
+    MAIN.classList.toggle('coll', collapsed);
+    BRAND.classList.toggle('coll', collapsed);
+    /* Rotate collapse icon: in RTL flip base direction */
+    const deg = isRTL
+      ? (collapsed ? '0deg' : '180deg')
+      : (collapsed ? '180deg' : '0deg');
+    COLLICO.style.transition = 'transform var(--dur-med) var(--ease-io)';
+    COLLICO.style.transform  = `rotate(${deg})`;
+    closeFlyout();
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   4. FLYOUT SYSTEM
+═══════════════════════════════════════════════════════ */
+let activeFlyout = null, hideTimer = null, showTimer = null;
+
+function repositionFlyout(flyout, wrap) {
+  const trigger = wrap.querySelector(':scope > .nr');
+  if (!trigger) return;
+  const rect = trigger.getBoundingClientRect();
+  const fh   = flyout.scrollHeight;
+  const vp   = window.innerHeight;
+  let   top  = rect.top;
+  if (top + fh > vp - 8) top = vp - fh - 8;
+  if (top < 8)            top = 8;
+  flyout.style.top = top + 'px';
+
+  /* In RTL the CSS sets right:var(--scw); no JS left needed.
+     But we still need to clear any stale left if we switched direction. */
+  if (isRTL) { flyout.style.left = ''; flyout.style.right = ''; }
+  else        { flyout.style.right = ''; flyout.style.left = ''; }
+}
+
+function openFlyout(wrap) {
+  if (!collapsed || isMobile()) return;
+  const flyout = wrap.querySelector(':scope > .flyout');
+  if (!flyout) return;
+  flyout.style.display = 'block';
+  repositionFlyout(flyout, wrap);
+  if (activeFlyout && activeFlyout !== flyout) {
+    activeFlyout.classList.remove('vis');
+    activeFlyout.style.display = 'none';
+  }
+  activeFlyout = flyout;
+  requestAnimationFrame(() => flyout.classList.add('vis'));
+}
+function closeFlyout() {
+  if (!activeFlyout) return;
+  activeFlyout.classList.remove('vis');
+  const f = activeFlyout;
+  setTimeout(() => { if (f && !f.classList.contains('vis')) f.style.display = 'none'; }, 200);
+  activeFlyout = null;
+}
+
+document.querySelectorAll('.snav > .niw').forEach(wrap => {
+  const flyout = wrap.querySelector(':scope > .flyout');
+  if (!flyout) return;
+  wrap.addEventListener('mouseenter',  () => { if (!collapsed || isMobile()) return; clearTimeout(hideTimer); showTimer = setTimeout(() => openFlyout(wrap), 60); });
+  wrap.addEventListener('mouseleave', e  => { if (!collapsed || isMobile()) return; if (flyout.contains(e.relatedTarget) || flyout === e.relatedTarget) return; clearTimeout(showTimer); hideTimer = setTimeout(closeFlyout, 150); });
+  flyout.addEventListener('mouseenter', () => { if (!collapsed || isMobile()) return; clearTimeout(hideTimer); });
+  flyout.addEventListener('mouseleave', e  => { if (!collapsed || isMobile()) return; if (wrap.contains(e.relatedTarget)) return; hideTimer = setTimeout(closeFlyout, 150); });
+});
+
+document.querySelectorAll('.snav > .niw > .nr').forEach(row => {
+  row.addEventListener('click', function (e) {
+    if (!collapsed || isMobile()) return;
+    e.preventDefault();
+    const wrap   = this.closest('.niw');
+    const flyout = wrap?.querySelector(':scope > .flyout');
+    if (!flyout) return;
+    flyout === activeFlyout && flyout.classList.contains('vis') ? closeFlyout() : (clearTimeout(showTimer), openFlyout(wrap));
+  });
+});
+
+document.addEventListener('click', e => {
+  if (!activeFlyout) return;
+  if (!SB.contains(e.target) && !activeFlyout.contains(e.target)) closeFlyout();
+});
+
+/* ═══════════════════════════════════════════════════════
+   5. MOBILE SIDEBAR
+═══════════════════════════════════════════════════════ */
+function closeMobile() { SB.classList.remove('mopen'); OV.classList.remove('vis'); }
+
+MBTGL.addEventListener('click', () => { SB.classList.toggle('mopen'); OV.classList.toggle('vis'); });
+OV.addEventListener('click', closeMobile);
+window.addEventListener('resize', () => {
+  if (isMobile()) { closeMobile(); closeFlyout(); collapsed = false; }
+  else { collapsed = SB.classList.contains('coll'); }
+});
+
+/* ═══════════════════════════════════════════════════════
+   6. LTR / RTL TOGGLE
+═══════════════════════════════════════════════════════ */
+function applyDirection(rtl) {
+  isRTL = rtl;
+  HTML.setAttribute('dir', rtl ? 'rtl' : 'ltr');
+  HTML.setAttribute('lang', rtl ? 'ar' : 'en');
+
+  /* Update badge + button */
+  RTLLBL.textContent   = rtl ? 'LTR' : 'RTL';
+  LANGLBL.textContent  = rtl ? 'ar' : 'en';
+
+  /* Flip collapse arrow icon */
+  if (COLLICO) {
+    if (!collapsed) {
+      COLLICO.className = rtl ? 'bi bi-arrow-bar-right cico' : 'bi bi-arrow-bar-left cico';
+    } else {
+      COLLICO.className = rtl ? 'bi bi-arrow-bar-left cico' : 'bi bi-arrow-bar-right cico';
+    }
+    COLLICO.style.transform = 'rotate(0deg)'; // reset any inline rotation
+  }
+
+  /* Close any open flyout — position CSS changes */
+  closeFlyout();
+}
+
+RTLBTN.addEventListener('click', () => applyDirection(!isRTL));
+
+/* ═══════════════════════════════════════════════════════
+   7. DARK / LIGHT THEME
+═══════════════════════════════════════════════════════ */
+THMBTN.addEventListener('click', () => {
+  dark = !dark;
+  const r = document.documentElement.style;
+  r.setProperty('--sbg',   dark ? '#141b2d' : '#fff');
+  r.setProperty('--fbg',   dark ? '#1a2540' : '#fff');
+  r.setProperty('--fbord', dark ? '#1f2d44' : '#e8ecf0');
+  r.setProperty('--tbg',   dark ? '#141b2d' : '#fff');
+  r.setProperty('--bbg',   dark ? '#0d1221' : '#f3f5f8');
+  r.setProperty('--sbord', dark ? '#1f2d44' : '#e8ecf0');
+  r.setProperty('--tm',    dark ? '#e2e8f0' : '#1c2840');
+  r.setProperty('--tmu',   dark ? '#718da8' : '#7a8ba0');
+  r.setProperty('--nhov',  dark ? '#1a2843' : '#f0f4f9');
+  r.setProperty('--nabg',  dark ? '#1e3158' : '#eef2ff');
+  r.setProperty('--natx',  dark ? '#93c5fd' : '#1a3a6b');
+  r.setProperty('--sh1', dark ? '0 1px 4px rgba(0,0,0,.3)'  : '0 1px 4px rgba(0,0,0,.07)');
+  r.setProperty('--sh2', dark ? '0 8px 28px rgba(0,0,0,.5)' : '0 8px 28px rgba(0,0,0,.13)');
+  THMBTN.innerHTML = dark ? '<i class="bi bi-moon-stars-fill text-info"></i>' : '<i class="bi bi-sun-fill text-warning"></i>';
+  document.querySelectorAll('.sc,.cfoot').forEach(el => { el.style.background = dark ? '#141b2d' : ''; el.style.borderColor = dark ? '#1f2d44' : ''; });
+  document.querySelectorAll('.snum').forEach(el => el.style.color = dark ? '#e2e8f0' : '');
+});
+
+/* ═══════════════════════════════════════════════════════
+   8. ACTIVE LINK
+═══════════════════════════════════════════════════════ */
+document.querySelectorAll('a.nr, a.fr, a.fc').forEach(link => {
+  link.addEventListener('click', function () {
+    document.querySelectorAll('a.nr').forEach(l => l.classList.remove('act'));
+    if (this.classList.contains('nr')) this.classList.add('act');
+  });
+});
+</script>
+</body>
+</html>
