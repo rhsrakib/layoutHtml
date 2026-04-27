@@ -195,7 +195,6 @@
     .ndeep .nr .ni { font-size:.85rem; width:16px; }
 
     .ncoll { overflow:hidden; height:0; transition:height var(--dur-med) var(--ease-io); }
-    .ndiv  { height:1px; background:var(--sbord); margin:.3rem .85rem; }
 
     /* ═══════════════════════════════════════════════════════
        COLLAPSED SIDEBAR – ICON STRIP
@@ -207,7 +206,6 @@
     .sidebar.coll .chev { opacity:0; width:0; overflow:hidden; }
     .sidebar.coll .nsub,
     .sidebar.coll .ncoll,
-    .sidebar.coll .ndiv { display:none !important; }
 
     /* ═══════════════════════════════════════════════════════
        FLYOUT PANEL
@@ -415,7 +413,7 @@
       html[dir="ltr"] .sidebar.coll .lbl,
       html[dir="rtl"] .sidebar.coll .lbl { opacity:1 !important; transform:none !important; width:auto !important; overflow:visible !important; pointer-events:auto !important; }
       .sidebar.coll .chev { opacity:1 !important; width:auto !important; overflow:visible !important; }
-      .sidebar.coll .nsub, .sidebar.coll .ncoll, .sidebar.coll .ndiv { display:block !important; }
+      .sidebar.coll .nsub, .sidebar.coll .ncoll, .sidebar.coll { display:block !important; }
 
       /* Flyouts off on mobile */
       .sidebar .flyout, .sidebar.coll .flyout { display:none !important; pointer-events:none !important; }
@@ -486,8 +484,6 @@
           <a class="nr" href="#"><i class="bi bi-diagram-3 ni"></i><span class="lbl">CRM</span></a>
           <div class="flyout"><div class="fsimple"><i class="bi bi-diagram-3 fi"></i>CRM</div></div>
         </div>
-
-        <div class="ndiv"></div>
 
         <!-- EMPLOYEE MANAGEMENT -->
         <div class="niw">
@@ -613,8 +609,6 @@
           <div class="flyout"><div class="fsimple"><i class="bi bi-person-check fi"></i>Customers</div></div>
         </div>
 
-        <div class="ndiv"></div>
-
         <!-- ATTENDANCE -->
         <div class="niw">
           <button class="nr" data-t="att"><i class="bi bi-calendar-check ni"></i><span class="lbl">Attendance Management</span><i class="bi bi-chevron-right chev"></i></button>
@@ -662,8 +656,6 @@
             <a class="fr" href="#"><i class="bi bi-wallet2 fi"></i><span class="flbl">Payroll Run</span></a>
           </div>
         </div>
-
-        <div class="ndiv"></div>
 
         <!-- MASTER SETUP -->
         <div class="niw">
